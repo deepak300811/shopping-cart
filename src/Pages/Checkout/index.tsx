@@ -10,9 +10,9 @@ import { App } from "../../store/Context";
 import { Product, TotalAmount } from "../../types";
 
 type PropTypes = {
-  onRemoveProduct: (id: string, type: string) => void;
   noOfSelectedProducts: number;
   handleHomepageRedirection:()=>void;
+  onRemoveProduct: (index: number, type: string) => void;
 };
 
 const CheckoutPage = (props: PropTypes) => {
@@ -119,6 +119,7 @@ const CheckoutPage = (props: PropTypes) => {
                 key={product.id}
                 onRemoveProduct={onRemoveProduct}
                 isCheckoutPage={true}
+                indexNumber={product.indexNumber}
               />
             );
           })}

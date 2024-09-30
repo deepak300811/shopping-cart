@@ -9,12 +9,13 @@ type propTypes = {
   id: string;
   photoLink: string;
   quantity: number;
-  onRemoveProduct: (id: string, type: string) => void;
+  onRemoveProduct: (index: number, type: string) => void;
   isCheckoutPage?: boolean;
+  indexNumber:number
 };
 
 const ProductCard = (props: propTypes) => {
-  const { stock = Math.max, name, photoLink = "", description, discountedPrice = 0, originalPrice, id, quantity = 0, onRemoveProduct, isCheckoutPage = false } = props;
+  const { name, photoLink = "", description, discountedPrice = 0, originalPrice, id, quantity = 0, onRemoveProduct, isCheckoutPage = false,indexNumber } = props;
 
   return (
     <div className={`product-card pb-4 pl-4 pr-4 pt-4 ${isCheckoutPage ? "on-checkout-page flex items-center" : ""}`}>
@@ -30,7 +31,7 @@ const ProductCard = (props: propTypes) => {
 
         {!isCheckoutPage && (
           <section className="">
-            <button className="primary-btn w-full pt-2 pb-2 " data-id={id}>
+            <button className="primary-btn w-full pt-2 pb-2 " data-id={id} data-index={indexNumber}>
               Add to cart
             </button>
           </section>
@@ -40,11 +41,11 @@ const ProductCard = (props: propTypes) => {
           <section className="quantity mt-4">
             <p className="quantity-line"> {quantity} in cart - </p>{" "}
             <p className="remove-from-cart">
-              <button className="remove-text" onClick={() => onRemoveProduct(id, "ONE")}>
+              <button className="remove-text" onClick={() => onRemoveProduct(indexNumber, "ONE")}>
                 Remove 1
               </button>
               <span className="separator-pipe">|</span>{" "}
-              <button className="remove-text" onClick={() => onRemoveProduct(id, "ALL")}>
+              <button className="remove-text" onClick={() => onRemoveProduct(indexNumber, "ALL")}>
                 Remove All
               </button>
             </p>
@@ -52,12 +53,12 @@ const ProductCard = (props: propTypes) => {
         )}
         {quantity > 0 && isCheckoutPage && (
           <section className="quantity">
-            <button onClick={() => onRemoveProduct(id, "ONE")} className="toggle-quantity desc">
+            <button onClick={() => onRemoveProduct(indexNumber, "ONE")} className="toggle-quantity desc">
               -
             </button>
             <p className="quantity-line ml-1 mr-1"> {quantity} in cart</p>
 
-            <button data-id={id} className="toggle-quantity incr">
+            <button data-id={id} data-index={indexNumber} className="toggle-quantity incr">
               +
             </button>
           </section>

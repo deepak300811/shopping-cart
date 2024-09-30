@@ -39,10 +39,16 @@ const AddressPage = () => {
       const addressCollection = collection(db, "address");
       const q = query(addressCollection, orderBy("createdAt", "desc"));
       const addressSnapshot = await getDocs(q); // Fetch ordered data
-      const addressList = addressSnapshot.docs.map((doc) => ({
+      const addressList: Address[] = addressSnapshot.docs.map((doc) => ({
         id: doc.id,
         isSelected: false,
-        ...doc.data(),
+        addressLine1: doc.data().addressLine1 || "",  
+        addressLine2: doc.data().addressLine2 || "",  
+        city: doc.data().city || "",
+        pin: doc.data().pin || "",
+        receiverName: doc.data().receiverName || "",
+        state: doc.data().state || "",
+        country: doc.data().country || ""
       }));
       console.log("Fetched addressList=", addressList);
       dispatch(setAddressList(addressList));
@@ -116,16 +122,6 @@ const AddressPage = () => {
       setEnableNewAddition(false);
       dispatch(addNewAddress(tempFormData))
 
-      // Fetch the updated address list
-      // const addressCollection = collection(db, "address");
-      // const addressSnapshot = await getDocs(addressCollection);
-      // const updatedAddressList = addressSnapshot.docs.map((doc) => ({
-      //   id: doc.id,
-      //   isSelected: false,
-      //   ...doc.data(),
-      // }));
-      // dispatch(setAddressList(updatedAddressList)); // Update address list in state
-
     } catch (error) {
       console.error("Error adding address: ", error);
     }
@@ -133,8 +129,8 @@ const AddressPage = () => {
     // Here you can dispatch an action to save the new address
   };
 
-  const handleAddressClick = (e) => {
-    const target = e.target;
+  const handleAddressClick = (e:React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
     const id = target.closest('.full-address')?.getAttribute('data-id');
     if (id) {
       console.log("clicked id=", id);

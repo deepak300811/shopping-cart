@@ -1,6 +1,5 @@
-import { Address, AddressList, Product, ProductList } from "../types";
+import { Address, AddressList, ProductList } from "../types";
 import {
-  ADD_NEW_ITEM_TO_CART,
   SET_SELECTED_ADDRESS,
   ADD_NEW_ADDRESS,
   SET_ADDRESS_LIST,
@@ -17,11 +16,11 @@ export const setProductList = (productList: ProductList) => {
 export const handleProductSelection = (selectedProduct: string) => {
   return { type: INCREASE_ITEM_QUANTITY, payload: selectedProduct };
 };
-export const handleRemoveOneProduct = (id: string) => {
-  return { type: REMOVE_ONE_PRODUCT, payload: id };
+export const handleRemoveOneProduct = (index: number) => {
+  return { type: REMOVE_ONE_PRODUCT, payload: index };
 };
-export const handleRemoveProductCompletely = (id: string) => {
-  return { type: REMOVE_PRODUCT_COMPLETELY, payload: id };
+export const handleRemoveProductCompletely = (index: number) => {
+  return { type: REMOVE_PRODUCT_COMPLETELY, payload: index };
 };
 export const setAddressList = (addressList: AddressList) => {
   return { type: SET_ADDRESS_LIST, payload: addressList };

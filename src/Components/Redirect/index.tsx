@@ -1,4 +1,3 @@
-import React from "react";
 import { useEffect } from "react";
 import waitingGif from "../../assets/waiting.gif"; // Correctly import the gif
 
