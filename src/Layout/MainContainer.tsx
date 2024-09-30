@@ -192,7 +192,7 @@ const MainContainer = () => {
           {navItems?.map((item) => {
             if (item.isButton) {
               return (
-                <button className="continue-button" onClick={() => setSelectedPage("ADDRESS")}>
+                <button className="continue-button w-90-percent" onClick={() => setSelectedPage("ADDRESS")}>
                   Continue
                 </button>
               );

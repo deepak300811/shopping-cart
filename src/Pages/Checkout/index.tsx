@@ -91,8 +91,8 @@ const CheckoutPage = (props: PropTypes) => {
     <div>
       <p className="page-heading mb-0">Shopping Cart</p>
       <button className="new-address-link button-as-text mb-2" onClick={handleDeselection}>Deselect all items</button>
-      <div className="separator mb-4"></div>
-      <div className="total-price-component flex-column flex items-center">
+      <div className="separator"></div>
+      <div className="total-price-component flex-column flex items-center sticky top-0 bg-white p-4 shadow mt-4">
         <section className="flex flex-column justify-center">
           <p className="font-base mr-2 ">Subtotal ({noOfSelectedProducts} items) </p>{" "}
           <div>
