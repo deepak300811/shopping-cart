@@ -1,10 +1,12 @@
 import { addDoc, collection, getDocs, orderBy, query, serverTimestamp } from "firebase/firestore";
+import { useCallback } from "react";
 import { useState } from "react";
 import { useContext } from "react";
 import { useEffect } from "react";
 import AddressCard from "../../Components/AddressCard";
+import { generic_error } from "../../constants";
 import { db } from "../../firebase";
-import { addNewAddress, setAddressList, setSelectedAddress } from "../../store/actionCreators";
+import { addNewAddress, setAddressList, setError, setSelectedAddress, startLoader, stopLoader, unsetError } from "../../store/actionCreators";
 import { App } from "../../store/Context";
 import { Address, AddressForm } from "../../types";
 
@@ -31,31 +33,38 @@ const AddressPage = () => {
     country: "",
   });
 
+
+  const handleErrorClick= useCallback(()=>{dispatch(unsetError()); fetchAddress()},[])
+
  // Fetch addresses on component mount
+ const fetchAddress = useCallback( async () => {
+  try {
+    dispatch(startLoader())
+    // Query addresses ordered by `createdAt` in descending order
+    const addressCollection = collection(db, "address");
+    const q = query(addressCollection, orderBy("createdAt", "desc"));
+    const addressSnapshot = await getDocs(q); // Fetch ordered data
+    const addressList: Address[] = addressSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      isSelected: false,
+      addressLine1: doc.data().addressLine1 || "",  
+      addressLine2: doc.data().addressLine2 || "",  
+      city: doc.data().city || "",
+      pin: doc.data().pin || "",
+      receiverName: doc.data().receiverName || "",
+      state: doc.data().state || "",
+      country: doc.data().country || ""
+    }));
+    console.log("Fetched addressList=", addressList);
+    dispatch(setAddressList(addressList));
+  } catch (error) {
+    dispatch(stopLoader())
+    dispatch(setError(generic_error,handleErrorClick))
+    console.error("Error fetching addresses: ", error);
+  }
+},[]);
+
  useEffect(() => {
-  const fetchAddress = async () => {
-    try {
-      // Query addresses ordered by `createdAt` in descending order
-      const addressCollection = collection(db, "address");
-      const q = query(addressCollection, orderBy("createdAt", "desc"));
-      const addressSnapshot = await getDocs(q); // Fetch ordered data
-      const addressList: Address[] = addressSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        isSelected: false,
-        addressLine1: doc.data().addressLine1 || "",  
-        addressLine2: doc.data().addressLine2 || "",  
-        city: doc.data().city || "",
-        pin: doc.data().pin || "",
-        receiverName: doc.data().receiverName || "",
-        state: doc.data().state || "",
-        country: doc.data().country || ""
-      }));
-      console.log("Fetched addressList=", addressList);
-      dispatch(setAddressList(addressList));
-    } catch (error) {
-      console.error("Error fetching addresses: ", error);
-    }
-  };
   if(state.addressList.length===0){
     fetchAddress(); // Call the fetch function
   }
@@ -98,6 +107,7 @@ const AddressPage = () => {
       return;
     }
     try {
+      dispatch(startLoader())
       // Add new address to the Firestore collection
       const tempFormData:Address={...formData}
       const res=await addDoc(collection(db, "address"), {
@@ -123,6 +133,8 @@ const AddressPage = () => {
       dispatch(addNewAddress(tempFormData))
 
     } catch (error) {
+      dispatch(stopLoader())
+      dispatch(setError(generic_error,()=>{dispatch(unsetError())}))
       console.error("Error adding address: ", error);
     }
     console.log("Submitted formData:", formData);

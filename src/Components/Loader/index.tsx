@@ -1,11 +1,11 @@
+import BackdropPortal from "../BackdropPortal";
 
 const Loader = () => {
   return (
-      <div className='h-screen w-screen absolute top-0 right-0 backdrop z-10 flex items-center justify-center overflow-hidden'>
+    <BackdropPortal>
+      <div className="spinner"></div>
+    </BackdropPortal>
+  );
+};
 
-          <div className="spinner"></div>
-      </div>
-  )
-}
-
-export default Loader
+export default Loader;

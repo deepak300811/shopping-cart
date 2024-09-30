@@ -4,42 +4,63 @@ import { useEffect } from "react";
 import ProductCard from "../Components/ProductCard";
 import { db } from "../firebase"; // Assuming this is where you configure Firestore
 import { App } from "../store/Context";
-import { setProductList, handleProductSelection, handleRemoveOneProduct, handleRemoveProductCompletely } from "../store/actionCreators";
+import {
+  setProductList,
+  handleProductSelection,
+  handleRemoveOneProduct,
+  handleRemoveProductCompletely,
+  startLoader,
+  stopLoader,
+  setError,
+  unsetError,
+} from "../store/actionCreators";
 import { useCallback } from "react";
-import { Address as AddressType, NavList, Product } from "../types";
+import { NavList, Product } from "../types";
 import Home from "../icons/Home";
-import { useMemo } from "react";
 import { useState } from "react";
 import AddressPage from "../Pages/Address";
 import Address from "../icons/Address";
 import CartWithNumer from "../Components/Cart";
 import CheckoutPage from "../Pages/Checkout";
+import Loader from "../Components/Loader";
+import ErrorModal from "../Components/ErrorModal";
+import { generic_error } from "../constants";
 const MainContainer = () => {
   const { state, dispatch } = useContext(App);
   const [selectedPage, setSelectedPage] = useState("HOMEPAGE");
+
+  const fetchProducts = useCallback(async () => {
+    try {
+      dispatch(startLoader());
+      const productCollection = collection(db, "products");
+      const productSnapshot = await getDocs(productCollection); // Fetch data one time
+      let index = 0;
+      const productList = productSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        quantity: 0,
+        indexNumber: index++,
+        name: doc.data().name,
+        originalPrice: doc.data().originalPrice,
+        photoLink: doc.data().photoLink,
+        description: doc.data().description,
+        stock: doc.data().stock,
+        discountedPrice: doc.data().discountedPrice,
+      }));
+      console.log("Fetched productList=", productList);
+      dispatch(setProductList(productList));
+    } catch (error) {
+      dispatch(stopLoader());
+      dispatch(
+        setError(generic_error, () => {
+          dispatch(unsetError());
+          fetchProducts();
+        })
+      );
+      console.error("Error fetching products: ", error);
+    }
+  }, []);
+
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const productCollection = collection(db, "products");
-        const productSnapshot = await getDocs(productCollection); // Fetch data one time
-        let index = 0;
-        const productList = productSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          quantity: 0,
-          indexNumber: index++,
-          name: doc.data().name,
-          originalPrice: doc.data().originalPrice,
-          photoLink: doc.data().photoLink,
-          description: doc.data().description,
-          stock: doc.data().stock,
-          discountedPrice: doc.data().discountedPrice,
-        }));
-        console.log("Fetched productList=", productList);
-        dispatch(setProductList(productList));
-      } catch (error) {
-        console.error("Error fetching products: ", error);
-      }
-    };
     fetchProducts(); // Call the fetch function
   }, []); // Empty dependency array for one-time fetch
 
@@ -60,29 +81,9 @@ const MainContainer = () => {
     }
   };
 
-  const getTotalItemsSelected = useMemo(() => {
-    if (state?.productList?.length > 0) {
-      let totalSelected = 0;
-      state?.productList?.map((product: Product) => {
-        totalSelected = totalSelected + product.quantity;
-      });
-      return totalSelected;
-    }
-    return 0;
-  }, [state?.productList]);
-
-  const getSelectedAdress = useMemo(() => {
-    if (state?.addressList?.length > 0) {
-      let selectedIndex = -1;
-      selectedIndex = state?.addressList?.findIndex((address: AddressType) => address.isSelected);
-      return selectedIndex;
-    }
-    return -1;
-  }, [state?.addressList]);
-
-  const getNavBar = () => {
-    let navItems:NavList = [];
-    if (selectedPage === "HOMEPAGE" && getTotalItemsSelected && getSelectedAdress > -1) {
+  const getNavBar = useCallback(() => {
+    let navItems: NavList = [];
+    if (selectedPage === "HOMEPAGE" && state?.totalNoOfSelectedProdcuts && state?.selectedAddressIndex > -1) {
       navItems = [
         {
           linkName: "Home",
@@ -98,22 +99,22 @@ const MainContainer = () => {
         },
         {
           linkName: "Checkout",
-          icon: <CartWithNumer itemsInCart={getTotalItemsSelected} />,
+          icon: <CartWithNumer itemsInCart={state?.totalNoOfSelectedProdcuts} />,
           isSelected: false,
           handleClick: () => setSelectedPage("CHECKOUT"),
         },
       ];
-    } else if (selectedPage === "HOMEPAGE" && getTotalItemsSelected) {
+    } else if (selectedPage === "HOMEPAGE" && state?.totalNoOfSelectedProdcuts) {
       navItems = [
         {
           linkName: "Continue",
           icon: null,
           isSelected: false,
           isButton: true,
-          handleClick: () => setSelectedPage("HOMEPAGE")
+          handleClick: () => setSelectedPage("HOMEPAGE"),
         },
       ];
-    } else if (selectedPage === "HOMEPAGE" && getSelectedAdress > -1) {
+    } else if (selectedPage === "HOMEPAGE" && state?.selectedAddressIndex > -1) {
       navItems = [
         {
           linkName: "Home",
@@ -128,7 +129,7 @@ const MainContainer = () => {
           handleClick: () => setSelectedPage("ADDRESS"),
         },
       ];
-    } else if (selectedPage === "ADDRESS" && getSelectedAdress > -1) {
+    } else if (selectedPage === "ADDRESS" && state?.selectedAddressIndex > -1) {
       navItems = [
         {
           linkName: "Home",
@@ -144,12 +145,12 @@ const MainContainer = () => {
         },
         {
           linkName: "Checkout",
-          icon: <CartWithNumer itemsInCart={getTotalItemsSelected} />,
+          icon: <CartWithNumer itemsInCart={state?.totalNoOfSelectedProdcuts} />,
           isSelected: false,
           handleClick: () => setSelectedPage("CHECKOUT"),
         },
       ];
-    } else if (selectedPage === "ADDRESS" && getSelectedAdress === -1) {
+    } else if (selectedPage === "ADDRESS" && state?.selectedAddressIndex === -1) {
       navItems = [
         {
           linkName: "Home",
@@ -180,7 +181,7 @@ const MainContainer = () => {
         },
         {
           linkName: "Checkout",
-          icon: <CartWithNumer itemsInCart={getTotalItemsSelected} />,
+          icon: <CartWithNumer itemsInCart={state?.totalNoOfSelectedProdcuts} />,
           isSelected: false,
           handleClick: () => setSelectedPage("CHECKOUT"),
         },
@@ -208,7 +209,7 @@ const MainContainer = () => {
         </section>
       </nav>
     );
-  };
+  }, [selectedPage, state?.totalNoOfSelectedProdcuts, state?.selectedAddressIndex]);
 
   const renderComponent = (page: string) => {
     if (page === "HOMEPAGE") {
@@ -233,10 +234,10 @@ const MainContainer = () => {
       );
     } else if (page === "ADDRESS") {
       return <AddressPage />;
-    } else if (page === "CHECKOUT" && getTotalItemsSelected > 0) {
+    } else if (page === "CHECKOUT" && state?.totalNoOfSelectedProdcuts > 0) {
       return (
         <div onClick={handleButtonClick}>
-          <CheckoutPage onRemoveProduct={handleProductRemoval} noOfSelectedProducts={getTotalItemsSelected} handleHomepageRedirection={() => setSelectedPage("HOME")} />
+          <CheckoutPage onRemoveProduct={handleProductRemoval} handleHomepageRedirection={() => setSelectedPage("HOME")} />
         </div>
       );
     } else {
@@ -245,9 +246,11 @@ const MainContainer = () => {
   };
   return (
     <main className="main-container">
+      {state.isLoading && <Loader />}
+      {state.errorMessageIfApplicable.error.length > 0 && <ErrorModal />}
       {renderComponent(selectedPage)}
 
-      {getTotalItemsSelected !== 0 && getNavBar()}
+      {state?.totalNoOfSelectedProdcuts !== 0 && getNavBar()}
     </main>
   );
 };

@@ -8,7 +8,11 @@ import {
   INCREASE_ITEM_QUANTITY,
   SET_PRODUCT_LIST,
   REMOVE_ADDRESS_SELECTION,
-  REMOVE_ALL_PRODUCT_SELECTION
+  REMOVE_ALL_PRODUCT_SELECTION,
+  STOP_LOADING,
+  START_LOADING,
+  SET_ERROR,
+  UNSET_ERROR
 } from "./actionTypes";
 export const setProductList = (productList: ProductList) => {
   return { type: SET_PRODUCT_LIST, payload: productList };
@@ -36,4 +40,17 @@ export const removeAddressSelection = () => {
 };
 export const removeAllProductSelection = () => {
   return { type: REMOVE_ALL_PRODUCT_SELECTION };
-};
+}
+export const startLoader = () => {
+  return { type: START_LOADING };
+}
+export const stopLoader = () => {
+  return { type: STOP_LOADING };
+}
+export const setError = (error:string,onClickFunction:()=>void) => {
+  console.log("errorrr=",error,onClickFunction)
+  return { type: SET_ERROR, payload:{error,onClickFunction} };
+}
+export const unsetError = () => {
+  return { type: UNSET_ERROR };
+}

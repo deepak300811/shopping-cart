@@ -32,6 +32,10 @@ export type AddressList = Address[];
 export interface State {
   productList: ProductList;
   addressList: AddressList;
+  totalNoOfSelectedProdcuts:number,
+  selectedAddressIndex:number,
+  isLoading:boolean;
+  errorMessageIfApplicable:{error:string,onClickFunction:()=>void};
 }
 
 export interface Action {

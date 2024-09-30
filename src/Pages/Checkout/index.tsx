@@ -1,25 +1,23 @@
 import { useMemo } from "react";
 import { useState } from "react";
 import { useContext } from "react";
-import Loader from "../../Components/Loader";
 import PriceComponent from "../../Components/PriceComponent";
 import ProductCard from "../../Components/ProductCard";
 import Redirect from "../../Components/Redirect";
-import { removeAddressSelection, removeAllProductSelection } from "../../store/actionCreators";
+import { generic_error } from "../../constants";
+import { removeAddressSelection, removeAllProductSelection, setError, startLoader, stopLoader, unsetError } from "../../store/actionCreators";
 import { App } from "../../store/Context";
 import { Product, TotalAmount } from "../../types";
 
 type PropTypes = {
-  noOfSelectedProducts: number;
   handleHomepageRedirection:()=>void;
   onRemoveProduct: (index: number, type: string) => void;
 };
 
 const CheckoutPage = (props: PropTypes) => {
   const { state, dispatch } = useContext(App);
-  const [isLoading,setIsLoading] = useState(false);
   const [isRedirecting,setIsRedirecting] = useState(false);
-  const { onRemoveProduct, noOfSelectedProducts,handleHomepageRedirection } = props;
+  const { onRemoveProduct,handleHomepageRedirection } = props;
   const selectedProducts = useMemo(() => {
     return state?.productList?.filter((product: Product) => {
       if (product.quantity > 0) {
@@ -46,7 +44,7 @@ const CheckoutPage = (props: PropTypes) => {
 
   const handlePaymentAndRedirection= async () => {
     try {
-      setIsLoading(true)
+      dispatch(startLoader())
       const inputBody={ productList: selectedProducts,bill:totalAmount.totalDiscountedAmt }
       const response = await fetch("https://jsonplaceholder.typicode.com/posts", {
         method: "POST",
@@ -57,15 +55,16 @@ const CheckoutPage = (props: PropTypes) => {
       });
       
       if (response.ok) {
-        setIsLoading(false)
+        dispatch(stopLoader())
         setIsRedirecting(true)
       } else {
-        setIsLoading(false)
+        dispatch(stopLoader())
+        dispatch(setError(generic_error,()=>{dispatch(unsetError())}))
         throw new Error("Failed to process order.");
       }
     } catch (error) {
-      setIsLoading(false)
-      console.log("Something went wrong. Please try again.");
+      dispatch(stopLoader())
+      dispatch(setError(generic_error,()=>{dispatch(unsetError())}))
     }
   };
  const handleAfterSuccessfulPayment=()=>{
@@ -82,9 +81,6 @@ const CheckoutPage = (props: PropTypes) => {
   return (
     <>
     {
-      isLoading && <Loader/>
-    }
-    {
       isRedirecting && <Redirect handleRedirection={handleAfterSuccessfulPayment}/>
     }
 
@@ -94,7 +90,7 @@ const CheckoutPage = (props: PropTypes) => {
       <div className="separator"></div>
       <div className=" rounded total-price-component flex-column flex items-center sticky top-2 bg-white p-4 shadow mt-4 mb-4">
         <section className="flex flex-column justify-center">
-          <p className="font-base mr-2 ">Subtotal ({noOfSelectedProducts} items) </p>{" "}
+          <p className="font-base mr-2 ">Subtotal ({state?.totalNoOfSelectedProdcuts} items) </p>{" "}
           <div>
             <PriceComponent originalPrice={totalAmount.totalOriginalAmt} discountedPrice={totalAmount.totalDiscountedAmt} />
           </div>

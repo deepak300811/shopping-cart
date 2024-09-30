@@ -5,7 +5,14 @@ import { State, Action } from '../types';
 // Create the initial state based on your types
 const initialState: State = {
   productList: [],
-  addressList: []
+  addressList: [],
+  selectedAddressIndex:-1,
+  totalNoOfSelectedProdcuts:0,
+  isLoading:false,
+  errorMessageIfApplicable:{
+    error:"",
+    onClickFunction:()=>{}
+  }
 };
 
 // Define the context with correct types

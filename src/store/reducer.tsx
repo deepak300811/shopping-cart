@@ -8,6 +8,10 @@ import {
   SET_SELECTED_ADDRESS,
   REMOVE_ALL_PRODUCT_SELECTION,
   REMOVE_ADDRESS_SELECTION,
+  START_LOADING,
+  STOP_LOADING,
+  SET_ERROR,
+  UNSET_ERROR,
 } from "./actionTypes";
 import { Action, Address, AddressList, Product, State } from "../types";
 
@@ -23,6 +27,7 @@ const ShoppingCartReducer = (state: State, action: Action) => {
       return {
         ...state,
         productList: productListWithIndex,
+        isLoading:false
       };
     }
 
@@ -31,6 +36,7 @@ const ShoppingCartReducer = (state: State, action: Action) => {
       const tempList = [...state.productList]; // Create a shallow copy of the product list
       if (tempList[index]) {
         tempList[index].quantity += 1; // Directly increase the quantity by the index
+        state.totalNoOfSelectedProdcuts+=1;
       }
       return {
         ...state,
@@ -43,6 +49,7 @@ const ShoppingCartReducer = (state: State, action: Action) => {
       const tempList = [...state.productList];
       if (tempList[index] && tempList[index].quantity > 0) {
         tempList[index].quantity -= 1;
+        state.totalNoOfSelectedProdcuts-=1;
       }
       return {
         ...state,
@@ -54,6 +61,7 @@ const ShoppingCartReducer = (state: State, action: Action) => {
       const index = action.payload;
       const tempList = [...state.productList];
       if (tempList[index]) {
+        state.totalNoOfSelectedProdcuts=state.totalNoOfSelectedProdcuts-tempList[index].quantity;
         tempList[index].quantity = 0; // Set the quantity to 0 to remove completely
       }
       return {
@@ -66,6 +74,7 @@ const ShoppingCartReducer = (state: State, action: Action) => {
       return {
         ...state,
         addressList: action.payload,
+        isLoading:false
       };
     }
 
@@ -76,15 +85,19 @@ const ShoppingCartReducer = (state: State, action: Action) => {
       }));
 
       tempArr.unshift(action.payload); // Add the new address to the top of the list
+      state.selectedAddressIndex=0;
+      state.isLoading=false
       return {
         ...state,
         addressList: tempArr,
+        
       };
     }
 
     case SET_SELECTED_ADDRESS: {
-      const tempArr: AddressList = state.addressList.map((address: Address) => {
+      const tempArr: AddressList = state.addressList.map((address: Address,index) => {
         if (address.id === action.payload) {
+          state.selectedAddressIndex=index
           return {
             ...address,
             isSelected: true,
@@ -111,6 +124,7 @@ const ShoppingCartReducer = (state: State, action: Action) => {
       return {
         ...state,
         productList: tempList,
+        totalNoOfSelectedProdcuts:0
       };
     }
 
@@ -119,10 +133,42 @@ const ShoppingCartReducer = (state: State, action: Action) => {
         ...address,
         isSelected: false,
       }));
+      state.selectedAddressIndex=-1
       return {
         ...state,
         addressList: tempArr,
       };
+    }
+
+    case START_LOADING:{
+      return {
+        ...state,
+        isLoading:true
+      }
+    }
+    case STOP_LOADING:{
+      return {
+        ...state,
+        isLoading:false
+      }
+    }
+    case SET_ERROR:{
+      return {
+        ...state,
+        errorMessageIfApplicable:{
+          error:action.payload.error,
+          onClickFunction:action.payload.onClickFunction
+        }
+      }
+    }
+    case UNSET_ERROR:{
+      return {
+        ...state,
+        errorMessageIfApplicable:{
+          error:"",
+          onClickFunction:""
+        }
+      }
     }
 
     default: {

@@ -18,7 +18,31 @@ const firebaseConfig = {
   measurementId: "G-NN2659CERD"
 };
 
+
+
+
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+
+
+// for simulating a faliure
+// rules_version = '2';
+// service cloud.firestore {
+//   match /databases/{database}/documents {
+//     match /products/{document=**} {
+//       allow read: if false; // Deny read access to simulate failure
+//     }
+//   }
+// }
+
+//for success
+// service cloud.firestore {
+//   match /databases/{database}/documents {
+//     match /{document=**} {
+//       allow read, write: if true;
+//     }
+//   }
+// }
