@@ -326,6 +326,9 @@ button:focus {
   cursor: pointer;
   margin-right: 1rem;
 }
+.navbar-item:last-child{
+  margin-right: 0rem;
+}
 
 .navbar-item p{
   font-size: .75rem;
