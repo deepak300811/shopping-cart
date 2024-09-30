@@ -13,6 +13,8 @@ import { useMemo } from "react";
 import { useState } from "react";
 import AddressPage from "../Pages/Address";
 import Address from "../icons/Address";
+import CartWithNumer from "../Components/Cart";
+import CheckoutPage from "../Pages/Checkout";
 const MainContainer = () => {
   const { state, dispatch } = useContext(App);
   const [selectedPage,setSelectedPage] = useState('HOMEPAGE')
@@ -75,11 +77,33 @@ const MainContainer = () => {
     }
     return -1
 
-  },[state?.productList])
+  },[state?.addressList])
 
   const getNavBar = () => {
     let navItems = [];
-    if (selectedPage === "HOMEPAGE" && getTotalItemsSelected) {
+    if (selectedPage === "HOMEPAGE" && getTotalItemsSelected && getSelectedAdress>-1) {
+      navItems = [
+        {
+          linkName: "Home",
+          icon: <Home/>,
+          isSelected: false,
+          handleClick:()=>setSelectedPage('HOMEPAGE')
+        },
+        {
+          linkName: "Address",
+          icon: <Address/>,
+          isSelected: false,
+          handleClick:()=>setSelectedPage('ADDRESS')
+        },
+        {
+          linkName: "Checkout",
+          icon: <CartWithNumer itemsInCart={getTotalItemsSelected}/>,
+          isSelected: false,
+          handleClick:()=>setSelectedPage('CHECKOUT')
+        }
+      ];
+    }
+    else if(selectedPage === "HOMEPAGE" && getTotalItemsSelected){
       navItems = [
         {
           linkName: "Continue",
@@ -103,19 +127,69 @@ const MainContainer = () => {
         }
       ];
     }
-    else if(selectedPage === "ADDRESS"){
+    else if(selectedPage === "ADDRESS" && getSelectedAdress>-1){
       navItems = [
         {
           linkName: "Home",
           icon: <Home/>,
           isSelected: false,
           handleClick:()=>setSelectedPage('HOMEPAGE')
+        },
+        {
+          linkName: "Address",
+          icon: <Address/>,
+          isSelected: false,
+          handleClick:()=>setSelectedPage('ADDRESS')
+        },
+        {
+          linkName: "Checkout",
+          icon: <CartWithNumer itemsInCart={getTotalItemsSelected}/>,
+          isSelected: false,
+          handleClick:()=>setSelectedPage('CHECKOUT')
+        }
+      ];
+    }
+    else if(selectedPage === "ADDRESS" && getSelectedAdress===-1){
+      navItems = [
+        {
+          linkName: "Home",
+          icon: <Home/>,
+          isSelected: false,
+          handleClick:()=>setSelectedPage('HOMEPAGE')
+        },
+        {
+          linkName: "Address",
+          icon: <Address/>,
+          isSelected: false,
+          handleClick:()=>setSelectedPage('ADDRESS')
+        }
+      ];
+    }
+    else if(selectedPage === "CHECKOUT"){
+      navItems = [
+        {
+          linkName: "Home",
+          icon: <Home/>,
+          isSelected: false,
+          handleClick:()=>setSelectedPage('HOMEPAGE')
+        },
+        {
+          linkName: "Address",
+          icon: <Address/>,
+          isSelected: false,
+          handleClick:()=>setSelectedPage('ADDRESS')
+        },
+        {
+          linkName: "Checkout",
+          icon: <CartWithNumer itemsInCart={getTotalItemsSelected}/>,
+          isSelected: false,
+          handleClick:()=>setSelectedPage('CHECKOUT')
         }
       ];
     }
     return (
-      <nav className="navbar">
-        <section className="w-full">
+      <nav className="navbar w-full">
+        <section className=" w-full flex justify-center">
           {navItems?.map((item) => {
             if (item.isButton) {
               return (
@@ -156,8 +230,16 @@ const MainContainer = () => {
       ))}
     </div>
     }
-    else if(page==='ADDRESS'){
-      return <AddressPage/>
+    else if (page === "ADDRESS") {
+      return <AddressPage />;
+    } else if (page === "CHECKOUT" && getTotalItemsSelected > 0) {
+      return (
+        <div onClick={handleButtonClick}>
+          <CheckoutPage onRemoveProduct={handleProductRemoval} noOfSelectedProducts={getTotalItemsSelected} handleHomepageRedirection={() => setSelectedPage("HOME")}/>
+        </div>
+      );
+    } else {
+      setSelectedPage("HOMEPAGE");
     }
   }
   return (

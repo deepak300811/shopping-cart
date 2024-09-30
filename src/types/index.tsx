@@ -36,3 +36,7 @@ export interface Product {
       type:string;
       payload?:any;
   }
+export interface TotalAmount{
+  totalDiscountedAmt:number;
+  totalOriginalAmt:number
+}

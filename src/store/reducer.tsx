@@ -1,5 +1,4 @@
 import {
-  ADD_NEW_ITEM_TO_CART,
   SET_PRODUCT_LIST,
   INCREASE_ITEM_QUANTITY,
   REMOVE_ONE_PRODUCT,
@@ -7,6 +6,8 @@ import {
   SET_ADDRESS_LIST,
   ADD_NEW_ADDRESS,
   SET_SELECTED_ADDRESS,
+  REMOVE_ALL_PRODUCT_SELECTION,
+  REMOVE_ADDRESS_SELECTION,
 } from "./actionTypes";
 import { Action, Address, AddressList, Product, State } from "../types";
 const ShoppingCartReducer = (state: State, action: Action) => {
@@ -109,10 +110,36 @@ const ShoppingCartReducer = (state: State, action: Action) => {
       });
       return {
         ...state,
-        addressList:tempArr
-      }
+        addressList: tempArr,
+      };
     }
 
+    case REMOVE_ALL_PRODUCT_SELECTION: {
+      const tempList = state.productList.map((product: Product) => {
+          return {
+            ...product,
+            quantity: 0,
+          };  
+      });
+
+      return {
+        ...state,
+        productList: tempList,
+      };
+    }
+
+    case REMOVE_ADDRESS_SELECTION: {
+      const tempArr: AddressList = state.addressList.map((address: Address) => {
+          return {
+            ...address,
+            isSelected: false,
+          };
+      });
+      return {
+        ...state,
+        addressList: tempArr,
+      };
+    }
 
     default: {
       break;
