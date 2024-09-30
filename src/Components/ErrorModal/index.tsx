@@ -1,11 +1,10 @@
 import { useContext } from "react"
-import { unsetError } from "../../store/actionCreators"
 import { App } from "../../store/Context"
 import BackdropPortal from "../BackdropPortal"
 
 
 const ErrorModal = () => {
-    const {state,dispatch} = useContext(App)
+    const {state} = useContext(App)
 
   return (
       <BackdropPortal>
