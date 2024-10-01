@@ -1,3 +1,4 @@
+import React from "react";
 import PriceComponent from "../PriceComponent";
 
 type propTypes = {
@@ -14,7 +15,7 @@ type propTypes = {
   indexNumber:number
 };
 
-const ProductCard = (props: propTypes) => {
+const ProductCard = React.memo( (props: propTypes) => {
   const { name, photoLink = "", description, discountedPrice = 0, originalPrice, id, quantity = 0, onRemoveProduct, isCheckoutPage = false,indexNumber } = props;
 
   return (
@@ -56,7 +57,7 @@ const ProductCard = (props: propTypes) => {
             <button onClick={() => onRemoveProduct(indexNumber, "ONE")} className="toggle-quantity desc">
               -
             </button>
-            <p className="quantity-line ml-1 mr-1"> {quantity} in cart</p>
+            <p className="quantity-line ml-2 mr-2"> {quantity} in cart</p>
 
             <button data-id={id} data-index={indexNumber} className="toggle-quantity incr">
               +
@@ -66,6 +67,6 @@ const ProductCard = (props: propTypes) => {
       </div>
     </div>
   );
-};
+});
 
 export default ProductCard;
