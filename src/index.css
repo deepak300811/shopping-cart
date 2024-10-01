@@ -494,15 +494,15 @@ font-weight: 600;
   border: 0;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 1.25rem;
+  padding: .3rem .7rem;
 }
 .desc{
   background: var(--negative-red);
   color: white;
-  font-size: .75rem;
 }
 .incr{
   background-color: var(--primary-button-color);
-  font-size: .75rem;
 }
 .total-price-component{
   
@@ -631,12 +631,17 @@ font-weight: 600;
   .product-container{
     grid-template-columns: repeat(2,1fr);
   }
+  .product-container.checkout-page{
+    /* display: flex; */
+    /* flex-direction: column; */
+    grid-template-columns: repeat(1,1fr);
+  }
 
 }
 
 /* Small Desktop */
 @media (min-width: 1200px) {
   .product-container.checkout-page {
-    grid-template-columns: repeat(3,1fr);
+    grid-template-columns: repeat(2,1fr);
   }
 }

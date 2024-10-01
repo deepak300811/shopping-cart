@@ -62,13 +62,13 @@ export const useMainContainerHook = () => {
       }
     }, []);
     console.log("state=", state);
-    const handleProductRemoval = (index: number, removalType: string) => {
+    const handleProductRemoval = useCallback( (index: number, removalType: string) => {
       if (removalType === "ONE") {
         dispatch(handleRemoveOneProduct(index));
       } else {
         dispatch(handleRemoveProductCompletely(index));
       }
-    };
+    },[]);
 
   return {
     state,
